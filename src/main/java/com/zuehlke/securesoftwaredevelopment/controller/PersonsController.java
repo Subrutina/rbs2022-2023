@@ -33,14 +33,14 @@ public class PersonsController {
 
     @GetMapping("/persons/{id}")
     public String person(@PathVariable int id, Model model) {
-        model.addAttribute("person", personRepository.get(id));
+        model.addAttribute("person", personRepository.get("" + id));
         return "person";
     }
 
     @GetMapping("/myprofile")
     public String self(Model model, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
-        model.addAttribute("person", personRepository.get(user.getId()));
+        model.addAttribute("person", personRepository.get("" + user.getId()));
         return "person";
     }
 

@@ -1,18 +1,18 @@
 package com.zuehlke.securesoftwaredevelopment.domain;
 
 public class Person {
-    private int id;
+    private String id;
     private String firstName;
     private String lastName;
     private String email;
-    public Person(int id, String firstName, String lastName, String email) {
+    public Person(String id, String firstName, String lastName, String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 

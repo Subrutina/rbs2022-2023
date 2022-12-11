@@ -53,7 +53,7 @@ public class PersonRepository {
         return personList;
     }
 
-    public Person get(int personId) {
+    public Person get(String personId) {
         String query = "SELECT id, firstName, lastName, email FROM persons WHERE id = " + personId;
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
@@ -84,22 +84,20 @@ public class PersonRepository {
         String firstName = rs.getString(2);
         String lastName = rs.getString(3);
         String email = rs.getString(4);
-        return new Person(id, firstName, lastName, email);
+        return new Person("" + id, firstName, lastName, email);
     }
 
     public void update(Person personUpdate) {
         Person personFromDb = get(personUpdate.getId());
-        String query = "UPDATE persons SET firstName = ?, lastName = ?, email = ? where id = " + personUpdate.getId();
+        String query = "UPDATE persons SET firstName = ?, lastName = '" + personUpdate.getLastName() + "', email = ? where id = " + personUpdate.getId();
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(query);
         ) {
             String firstName = personUpdate.getFirstName() != null ? personUpdate.getFirstName() : personFromDb.getFirstName();
-            String lastName = personUpdate.getLastName() != null ? personUpdate.getLastName() : personFromDb.getLastName();
             String email = personUpdate.getEmail() != null ? personUpdate.getEmail() : personFromDb.getEmail();
             statement.setString(1, firstName);
-            statement.setString(2, lastName);
-            statement.setString(3, email);
+            statement.setString(2, email);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

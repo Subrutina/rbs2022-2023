@@ -82,7 +82,7 @@ public class MoviesController {
         List<ViewComment> commentList = new ArrayList<>();
 
         for (Comment comment : comments) {
-            Person person = userRepository.get(comment.getUserId());
+            Person person = userRepository.get("" + comment.getUserId());
             commentList.add(new ViewComment(person.getFirstName() + " " + person.getLastName(), comment.getComment()));
         }
 
