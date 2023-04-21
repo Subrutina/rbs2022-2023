@@ -1,7 +1,9 @@
 package com.zuehlke.securesoftwaredevelopment.repository;
 
 import com.zuehlke.securesoftwaredevelopment.config.AuditLogger;
+import com.zuehlke.securesoftwaredevelopment.config.DatabaseAuthenticationProvider;
 import com.zuehlke.securesoftwaredevelopment.config.Entity;
+import com.zuehlke.securesoftwaredevelopment.config.SecurityUtil;
 import com.zuehlke.securesoftwaredevelopment.domain.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +35,8 @@ public class PersonRepository {
             while (rs.next()) {
                 personList.add(createPersonFromResultSet(rs));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
         return personList;
     }
@@ -46,9 +48,13 @@ public class PersonRepository {
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet rs = statement.executeQuery(query)) {
+            AuditLogger.getAuditLogger(DatabaseAuthenticationProvider.class)
+                    .audit("Successful person search for search term = " + searchTerm);
             while (rs.next()) {
                 personList.add(createPersonFromResultSet(rs));
             }
+        }catch (SQLException ex){
+            LOG.warn("Person search failed for search term = " + searchTerm, ex);
         }
         return personList;
     }
@@ -58,11 +64,12 @@ public class PersonRepository {
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet rs = statement.executeQuery(query)) {
+
             while (rs.next()) {
                 return createPersonFromResultSet(rs);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            LOG.warn("Person search failed for id = " + personId, ex);
         }
 
         return null;
@@ -74,8 +81,11 @@ public class PersonRepository {
              Statement statement = connection.createStatement();
         ) {
             statement.executeUpdate(query);
-        } catch (SQLException e) {
-            e.printStackTrace();
+            AuditLogger.getAuditLogger(DatabaseAuthenticationProvider.class)
+                    .audit("Successful deletion of user with id = " + personId);
+        } catch (SQLException ex) {
+            LOG.warn("Person deletion failed for id = " + personId, ex);
+
         }
     }
 
@@ -99,7 +109,11 @@ public class PersonRepository {
             statement.setString(1, firstName);
             statement.setString(2, email);
             statement.executeUpdate();
+            AuditLogger.getAuditLogger(DatabaseAuthenticationProvider.class)
+                    .audit("Successful update of user with id = " + personUpdate.getId());
         } catch (SQLException e) {
+            AuditLogger.getAuditLogger(DatabaseAuthenticationProvider.class)
+                    .audit("Failed update of user with id = " + personUpdate.getId());
             e.printStackTrace();
         }
     }

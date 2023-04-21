@@ -1,5 +1,7 @@
 package com.zuehlke.securesoftwaredevelopment.repository;
 
+import com.zuehlke.securesoftwaredevelopment.config.AuditLogger;
+import com.zuehlke.securesoftwaredevelopment.config.DatabaseAuthenticationProvider;
 import com.zuehlke.securesoftwaredevelopment.domain.Comment;
 import com.zuehlke.securesoftwaredevelopment.domain.Rating;
 import org.slf4j.Logger;
@@ -38,13 +40,19 @@ public class RatingRepository {
                 preparedStatement.setInt(2, rating.getMovieId());
                 preparedStatement.setInt(3, rating.getUserId());
                 preparedStatement.executeUpdate();
+                AuditLogger.getAuditLogger(DatabaseAuthenticationProvider.class)
+                        .audit("Movie rating successfully updated");
             } else {
                 PreparedStatement preparedStatement = connection.prepareStatement(query3);
                 preparedStatement.setInt(1, rating.getMovieId());
                 preparedStatement.setInt(2, rating.getUserId());
                 preparedStatement.setInt(3, rating.getRating());
                 preparedStatement.executeUpdate();
+                AuditLogger.getAuditLogger(DatabaseAuthenticationProvider.class)
+                        .audit("Movie rating successfully added");
+
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,7 @@
 package com.zuehlke.securesoftwaredevelopment.repository;
 
 import com.zuehlke.securesoftwaredevelopment.config.AuditLogger;
+import com.zuehlke.securesoftwaredevelopment.config.DatabaseAuthenticationProvider;
 import com.zuehlke.securesoftwaredevelopment.domain.Genre;
 import com.zuehlke.securesoftwaredevelopment.domain.Movie;
 import com.zuehlke.securesoftwaredevelopment.domain.NewMovie;
@@ -55,6 +56,8 @@ public class MovieRepository {
             while (rs.next()) {
                 movieList.add(createMovieFromResultSet(rs));
             }
+        } catch (SQLException ex){
+            LOG.warn("Movie search failed for search term = " + searchTerm, ex);
         }
         return movieList;
     }
@@ -109,13 +112,16 @@ public class MovieRepository {
                         statement2.setInt(1, (int) finalId);
                         statement2.setInt(2, genre.getId());
                         statement2.executeUpdate();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                        AuditLogger.getAuditLogger(DatabaseAuthenticationProvider.class)
+                                .audit("Successful creation of new movie");
+                    } catch (SQLException ex) {
+                        LOG.error("Failed insertion to table movies_to_genres", ex);
+
                     }
                 });
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            LOG.error("Failed creation of new movie", ex);
         }
         return id;
     }
@@ -132,8 +138,11 @@ public class MovieRepository {
             statement.executeUpdate(query2);
             statement.executeUpdate(query3);
             statement.executeUpdate(query4);
-        } catch (SQLException e) {
-            e.printStackTrace();
+            AuditLogger.getAuditLogger(DatabaseAuthenticationProvider.class)
+                    .audit("Successful deletion of movie with id = " + movieId);
+        } catch (SQLException ex) {
+            LOG.warn("Failed deletion of movie with id = " + movieId, ex);
+
         }
     }
 
