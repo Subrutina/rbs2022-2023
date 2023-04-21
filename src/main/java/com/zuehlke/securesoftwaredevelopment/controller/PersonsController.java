@@ -16,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import java.nio.file.AccessDeniedException;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.List;
